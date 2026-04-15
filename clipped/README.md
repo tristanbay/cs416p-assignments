@@ -1,5 +1,5 @@
 # Clipped (CS 416P Assignment)
-This is my program for the "Clipped" assignment in the CS 416P course (Computers, Sound, and Music) at Portland State University).
+This is my program for the "Clipped" assignment in the CS 416P course (Computers, Sound, and Music) at Portland State University.
 
 ## Setup
 Install the `libsndfile` development package for your Linux distro. The name and command will vary depending on your package maintainer.
