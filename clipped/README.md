@@ -2,7 +2,7 @@
 This is my program for the "Clipped" assignment in the CS 416P course (Computers, Sound, and Music) at Portland State University).
 
 ## Setup
-Install the `libsndfile` development on Linux. The name and command will vary depending on your package maintainer.
+Install the `libsndfile` development package for your Linux distro. The name and command will vary depending on your package maintainer.
 - For Fedora: `sudo dnf install libsndfile-devel`
 - For Ubuntu and Debian: `sudo apt install libsndfile-dev`
 
