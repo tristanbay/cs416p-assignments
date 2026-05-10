@@ -1,4 +1,4 @@
-FLAGS = -g -Wall -lm -lsndfile
+FLAGS = -g -Wall -lm -lsndfile -lportaudio
 CC = gcc
 PROG = clipped
 
