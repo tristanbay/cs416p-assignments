@@ -44,6 +44,8 @@
 #define CHANNELS 1
 #define OUTBUF_SIZE 2048
 
+#define FILENAME "ALEATORIC.wav"
+
 struct Song
 {
 	Song();
@@ -57,7 +59,7 @@ struct Song
 		float chord_note(int, std::mt19937&);
 		float base_scale_note(std::mt19937&);
 
-		void write_audio(unsigned);
+		void write_audio(int);
 		short saw_wave_note(double, double, double);
 
 		int edo; // the number of equal divisions per octave of the song (the tuning)

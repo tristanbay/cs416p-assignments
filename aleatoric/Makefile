@@ -6,4 +6,4 @@ all:
 	$(CC) $(PROGS).cpp $(FLAGS) -o $(PROGS)
 
 clean:
-	rm $(PROGS)
+	rm $(PROGS) *.wav

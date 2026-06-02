@@ -56,11 +56,18 @@ Song::Song()
 	std::cout << "\nLine pattern number: " << chosen_line_pattern << "\n\n";
 
 	write_notes(rng); // write all the notes to the 2D melodies array
+	
+	for (int i = 0; i < UNIQUE_LINES; ++i) {
+		std::cout << "Line " << i << ":\n";
+		for (int j = 0; j < CHORD_COUNT * BEAT_COUNT * NOTES_PER_BEAT; ++j)
+			std::cout << "\tNote " << j << ": " << melodies[i][j] << " samples\n";
+		std::cout << "\n";
+	}
 
-	unsigned audio_len = ceil(tempo * BEAT_COUNT * CHORD_COUNT * LINE_COUNT);
+	int audio_len = ceil(tempo * BEAT_COUNT * CHORD_COUNT * LINE_COUNT);
 	audio = new short[audio_len]; // allocate audio array
 	audio[audio_len - 1] = 0; // just in case there's a rounding error or something
-	write_audio(); // write data to audio array
+	write_audio(audio_len); // write data to audio array
 }
 
 Song::~Song()
@@ -69,12 +76,26 @@ Song::~Song()
 }
 
 
-void Song::write_to_wav()
+void Song::write_to_wav() // some of this function was taken from the clipped assignment
 {
+	int audio_len = ceil(tempo * BEAT_COUNT * CHORD_COUNT * LINE_COUNT);
+	SF_INFO wave_info = {
+		audio_len,
+		SAMPLE_RATE,
+		CHANNELS,
+		SF_FORMAT_WAV | SF_FORMAT_PCM_16,
+		0,
+		0
+	};
 
+	SNDFILE* wave = sf_open(FILENAME, SFM_WRITE, &wave_info);
+
+	sf_write_short(wave, audio, audio_len);
+
+	sf_close(wave);
 }
 
-void Song::play()
+void Song::play() // some of this function was taken from the clipped assignment
 {
 
 }
@@ -148,7 +169,7 @@ float Song::chord_note(int chord_index, std::mt19937& rng)
 	int out = abs(chord_index);
 	switch (chord_note) {
 		case 0:
-			return out;
+			break;
 		case 1:
 			out += chord_index < 0 ? TOP_CHORD_NOTE - MID_CHORD_NOTE : MID_CHORD_NOTE;
 			break;
@@ -165,7 +186,7 @@ float Song::base_scale_note(std::mt19937& rng)
 	return full_scale[base_scale_indices[scale_note]];
 }
 
-void Song::write_audio(unsigned data_len)
+void Song::write_audio(int data_len)
 {
 	double note_len = tempo / NOTES_PER_BEAT; // length of note in samples
 	double note_period = 0; // the wave period of current note; corresponds to frequency
@@ -203,5 +224,6 @@ short Song::saw_wave_note(double wave_prog, double note_prog, double note_len)
 int main()
 {
 	Song song;
+	song.write_to_wav();
 	return 0;
 }
