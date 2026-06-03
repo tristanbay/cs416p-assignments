@@ -152,10 +152,10 @@ void Song::write_notes(std::mt19937& rng)
 	for (int i = 0; i < UNIQUE_LINES; ++i) {
 		for (int j = 0; j < CHORD_COUNT; ++j) {
 			for (int k = 0; k < BEAT_COUNT * NOTES_PER_BEAT; ++k) {
-				if (rng() % 100 < CHORD_PERCENT) {
+				if (rng() % 100 < CHORD_PERCENT) { // if chord note
 					melodies[i][j * BEAT_COUNT * NOTES_PER_BEAT + k] =
 						chord_note(progressions[chosen_progs[i]][j], rng);
-				} else {
+				} else { // if base scale note
 					melodies[i][j * BEAT_COUNT * NOTES_PER_BEAT + k] = base_scale_note(rng);
 				}
 			}
@@ -166,7 +166,7 @@ void Song::write_notes(std::mt19937& rng)
 float Song::chord_note(int chord_index, std::mt19937& rng)
 {
 	int chord_note = rng() % CHORD_NOTES;
-	int out = abs(chord_index);
+	int out = abs(chord_index); // chord index is in degrees of full scale, not base scale
 	switch (chord_note) {
 		case 0:
 			break;

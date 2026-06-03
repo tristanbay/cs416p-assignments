@@ -72,16 +72,16 @@ struct Song
 		float full_scale[FULL_SCALE_NOTES]; // base = major scale, full = for chords
 		int base_scale_indices[BASE_SCALE_NOTES]; // full scale note indices of base scale
 		int progressions[PROG_COUNT][CHORD_COUNT] = { // possible chord progs
-			{ 0, 3, -1, 4 }, // positive number is major, negative number is minor
-			{ 0, -5, -1, 4 }, // absolute value of number is scale degree of root - 1
-			{ 0, -2, 3, -3 }, // minor tonic chord can be represented as -7
-			{ 0, 4, -1, 4 },
-			{ 0, -5, 3, 4 },
-			{ 3, 4, -5, 3 },
-			{ 0, 4, -5, 0 },
-			{ 0, 3, -3, 0 },
-			{ 3, 4, 0, 0 },
-			{ -5, 3, 0, 4 }
+			{ 0, 5, -2, 7 }, // positive number is major, negative number is minor
+			{ 0, -9, -2, 7 }, // absolute value of number is full scale degree of root note
+			{ 0, -4, 5, -5 }, // minor tonic chord can be represented as -12
+			{ 0, 7, -2, 7 },
+			{ 0, -9, 5, 7 },
+			{ 5, 7, -9, 5 },
+			{ 0, 7, -9, 0 },
+			{ 0, 5, -5, 0 },
+			{ 5, 7, 0, 0 },
+			{ -9, 5, 0, 7 }
 		};
 		int chosen_progs[UNIQUE_LINES];
 		int line_patterns[LINE_PTN_COUNT][LINE_COUNT] = { // possible line seqs for song
