@@ -15,7 +15,7 @@
 #include <sndfile.h>
 #include <portaudio.h>
 
-Song::Song()
+Song::Song() // public constructor
 {
 	unsigned rseed = std::chrono::system_clock::now().time_since_epoch().count();
 	std::mt19937 rng(rseed);
@@ -64,41 +64,13 @@ Song::Song()
 		std::cout << "\n";
 	}
 
-	int audio_len = ceil(tempo * BEAT_COUNT * CHORD_COUNT * LINE_COUNT);
+	audio_len = ceil(tempo * BEAT_COUNT * CHORD_COUNT * LINE_COUNT);
 	audio = new short[audio_len]; // allocate audio array
 	audio[audio_len - 1] = 0; // just in case there's a rounding error or something
-	write_audio(audio_len); // write data to audio array
+	write_audio(); // write data to audio array
 }
 
-Song::~Song()
-{
-	delete[] audio; // deallocate audio array
-}
-
-
-void Song::write_to_wav() // some of this function was taken from the clipped assignment
-{
-	int audio_len = ceil(tempo * BEAT_COUNT * CHORD_COUNT * LINE_COUNT);
-	SF_INFO wave_info = {
-		audio_len,
-		SAMPLE_RATE,
-		CHANNELS,
-		SF_FORMAT_WAV | SF_FORMAT_PCM_16,
-		0,
-		0
-	};
-
-	SNDFILE* wave = sf_open(FILENAME, SFM_WRITE, &wave_info);
-
-	sf_write_short(wave, audio, audio_len);
-
-	sf_close(wave);
-}
-
-void Song::play() // some of this function was taken from the clipped assignment
-{
-
-}
+// --- PRIVATE CONSTRUCTOR HELPERS ---
 
 void Song::generate_scales() // use chain of fifths to generate scales
 {
@@ -186,7 +158,7 @@ float Song::base_scale_note(std::mt19937& rng)
 	return full_scale[base_scale_indices[scale_note]];
 }
 
-void Song::write_audio(int data_len)
+void Song::write_audio()
 {
 	double note_len = tempo / NOTES_PER_BEAT; // length of note in samples
 	double note_period = 0; // the wave period of current note; corresponds to frequency
@@ -196,7 +168,7 @@ void Song::write_audio(int data_len)
 
 	int line_prog = 0; // the current note in line
 	int which_line = 0; // current line in song
-	for (int i = 0; i < data_len; ++i) {
+	for (int i = 0; i < audio_len; ++i) {
 		note_period = melodies[line_patterns[chosen_line_pattern][which_line]][line_prog];
 		audio[i] = saw_wave_note(wave_prog, note_prog, note_len);
 		note_prog += 1.0;
@@ -221,9 +193,152 @@ short Song::saw_wave_note(double wave_prog, double note_prog, double note_len)
 	return (short)round(base_amp * env * (std::numeric_limits<unsigned short>::max() - 1));
 }
 
+// --- END OF PRIVATE CONSTRUCTOR HELPERS ---
+
+Song::~Song() // public destructor
+{
+	delete[] audio; // deallocate audio array
+}
+
+void Song::write_to_wav() // some of this function was taken from the clipped assignment
+{
+	SF_INFO wave_info = {
+		audio_len,
+		SAMPLE_RATE,
+		CHANNELS,
+		SF_FORMAT_WAV | SF_FORMAT_PCM_16,
+		0,
+		0
+	};
+
+	SNDFILE* wave = sf_open(FILENAME, SFM_WRITE, &wave_info);
+
+	sf_write_short(wave, audio, audio_len);
+
+	sf_close(wave);
+}
+
+void Song::play() // some of this function was taken from the clipped assignment
+{
+	PaStreamParameters out_params;
+	PaStream* out_audio;
+	PaError out_error = Pa_Initialize();
+	
+	if (out_error != paNoError) {
+		std::cout << "Playback initialization error\n";
+		Pa_Terminate();
+		return;
+	}
+
+	WaveData play_this(audio_len, audio);
+	out_params.device = Pa_GetDefaultOutputDevice();
+	if (out_params.device == paNoDevice) {
+		std::cout << "No output device detected\n";
+		Pa_Terminate();
+		return;
+	}
+
+	out_params.channelCount = CHANNELS;
+	out_params.sampleFormat = paInt16;
+	out_params.suggestedLatency =
+		Pa_GetDeviceInfo(out_params.device)->defaultLowOutputLatency;
+	out_params.hostApiSpecificStreamInfo = nullptr;
+
+	out_error =
+		Pa_OpenStream(&out_audio, nullptr, &out_params, SAMPLE_RATE, OUTBUF_SIZE, paClipOff,
+		play_callback, &play_this);
+	if (out_error != paNoError) {
+		std::cout << "Error opening audio stream\n";
+		Pa_Terminate();
+		return;
+	}
+
+	if (out_audio) {
+		out_error = Pa_StartStream(out_audio);
+		if (out_error != paNoError) {
+			std::cout << "Error starting audio playback\n";
+			Pa_Terminate();
+			return;
+		}
+
+		while ((out_error = Pa_IsStreamActive(out_audio)) == 1)
+			Pa_Sleep(125);
+		if (out_error != paNoError) {
+			std::cout << "Error playing audio\n";
+			Pa_Terminate();
+			return;
+		}
+
+		out_error = Pa_CloseStream(out_audio);
+		if (out_error != paNoError) {
+			std::cout << "Error closing audio stream\n";
+			Pa_Terminate();
+			return;
+		}
+	}
+
+	Pa_Terminate();
+}
+
+int Song::play_callback(const void* in_buf, void* out_buf, unsigned long buf_len,
+		const PaStreamCallbackTimeInfo* time_info, PaStreamCallbackFlags flags,
+		void* user_data) // some of this function was taken from the clipped assignment
+{
+	WaveData* w_data = (WaveData*)user_data;
+	int finished, extra;
+	short* write = (short*)out_buf;
+	unsigned remaining = w_data->get_data_size() - w_data->get_current_index();
+	
+	(void)in_buf; // not using these, so this is to prevent unused variable warnings
+	(void)time_info;
+	(void)flags;
+
+	if (remaining < buf_len) {
+		extra = buf_len - remaining;
+		for (unsigned i = 0; i < remaining; ++i)
+			*(write++) = w_data->get_and_advance_sample();
+		for (int i = 0; i < extra; ++i)
+			*(write++) = 0;
+		finished = paComplete;
+	} else {
+		for (unsigned i = 0; i < buf_len; ++i)
+			*(write++) = w_data->get_and_advance_sample();
+		finished = paContinue;
+	}
+	return finished;
+}
+
+WaveData::WaveData(unsigned data_len, short* data):
+		current(0), data_size(data_len), audio(data)
+{
+}
+
+WaveData::~WaveData()
+{
+	audio = nullptr;
+}
+
+short WaveData::get_and_advance_sample()
+{
+	short out = audio[current];
+	++current;
+	return out;
+}
+
+unsigned WaveData::get_current_index()
+{
+	return current;
+}
+
+unsigned WaveData::get_data_size()
+{
+	return data_size;
+}
+
 int main()
 {
 	Song song;
 	song.write_to_wav();
+	song.play();
 	return 0;
 }

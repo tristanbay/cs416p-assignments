@@ -6,6 +6,7 @@
  */
 
 #include <random>
+#include <portaudio.h>
 
 #define SAMPLE_RATE 48000
 
@@ -42,6 +43,7 @@
 #define CHORD_PERCENT 80
 
 #define CHANNELS 1
+	// name of below parameter taken from clipped assignment
 #define OUTBUF_SIZE 2048
 
 #define FILENAME "ALEATORIC.wav"
@@ -50,8 +52,10 @@ struct Song
 {
 	Song();
 	~Song();
+
 	void write_to_wav();
 	void play();
+
 	private:
 		void generate_scales();
 		void choose_song_structure(std::mt19937&);
@@ -59,8 +63,11 @@ struct Song
 		float chord_note(int, std::mt19937&);
 		float base_scale_note(std::mt19937&);
 
-		void write_audio(int);
+		void write_audio();
 		short saw_wave_note(double, double, double);
+
+		static int play_callback(const void*, void*, unsigned long,
+				const PaStreamCallbackTimeInfo*, PaStreamCallbackFlags, void*);
 
 		int edo; // the number of equal divisions per octave of the song (the tuning)
 		int edo_choices[EDO_COUNT] = { 17, 26, 27, 31 }; // possible edos song could be in
@@ -93,4 +100,20 @@ struct Song
 		// 2D array to store the melodies to (potentially) be used
 		float melodies[UNIQUE_LINES][CHORD_COUNT * BEAT_COUNT * NOTES_PER_BEAT];
 		short* audio; // pointer to dynamically-allocated audio data for song
+		int audio_len; // length of the audio data
+};
+
+struct WaveData // some of this is from the clipped assignment
+{
+	WaveData(unsigned, short*);
+	~WaveData();
+
+	short get_and_advance_sample();
+	unsigned get_current_index();
+	unsigned get_data_size();
+
+	private:
+		unsigned current; // current sample index
+		unsigned data_size; // size of the audio array being pointed to
+		short* audio; // pointer to the audio array
 };
