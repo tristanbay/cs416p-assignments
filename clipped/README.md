@@ -20,8 +20,8 @@ Both options play the generated audio.
 If the audio stutters/is intermittent, try changing the `BUFSIZE` macro on line 17 to a larger value.
 
 ## Libraries Used
-libsndfile ([under the LGPL version 2.1 or 3](https://www.gnu.org/licenses/lgpl-3.0.html))
-portaudio ([under the MIT Expat license](https://files.portaudio.com/docs/v19-doxydocs/License.html))
+- libsndfile ([under the LGPL version 2.1 or 3](https://www.gnu.org/licenses/lgpl-3.0.html))
+- portaudio ([under the MIT Expat license](https://files.portaudio.com/docs/v19-doxydocs/License.html))
 
 ## References Used
 [this source code/web page](https://files.portaudio.com/docs/v19-doxydocs/paex__record_8c_source.html)
