@@ -7,7 +7,6 @@
 */
 
 #include "PluginProcessor.h"
-#include "PluginEditor.h"
 
 //==============================================================================
 SynthAudioProcessor::SynthAudioProcessor()
@@ -161,12 +160,7 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
 //==============================================================================
 bool SynthAudioProcessor::hasEditor() const
 {
-    return true; // (change this to false if you choose to not supply an editor)
-}
-
-juce::AudioProcessorEditor* SynthAudioProcessor::createEditor()
-{
-    return new SynthAudioProcessorEditor (*this);
+    return false; // (change this to false if you choose to not supply an editor)
 }
 
 //==============================================================================
