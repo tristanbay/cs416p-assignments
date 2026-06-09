@@ -80,6 +80,7 @@ void SynthAudioProcessor::changeProgramName(int index, const juce::String& newNa
 
 void SynthAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+	voice.setSampleRate(sampleRate);
 }
 
 void SynthAudioProcessor::releaseResources()
@@ -112,20 +113,33 @@ void SynthAudioProcessor::processBlock(
 {
 	juce::ScopedNoDenormals noDenormals;
 	auto totalNumInputChannels  = getTotalNumInputChannels();
-	auto totalNumOutputChannels = getTotalNumOutputChannels();
+	auto totalBufSamples = buffer.getNumSamples();
 
-	for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-		buffer.clear(i, 0, buffer.getNumSamples());
-
-	for (int channel = 0; channel < totalNumInputChannels; ++channel) {
-		auto* channelData = buffer.getWritePointer(channel);
-
+	for (const auto midi : midiMessages) {
+		auto message = midi.getMessage();
+		if (message.isNoteOn()) {
+			voice.noteOn(message.getNoteNumber(), message.getVelocity());
+		} else {
+			voice.noteOff(message.getNoteNumber());
+		}
 	}
+
+	float temp;
+	for (int sample = 0; sample < totalBufSamples; ++sample) {
+		temp = voice.audioOut();
+		for (int channel = 0; channel < totalNumInputChannels; ++channel)
+			buffer.setSample(channel, sample, temp);
+	}
+}
+
+juce::AudioProcessorEditor* SynthAudioProcessor::createEditor()
+{
+	return new juce::GenericAudioProcessorEditor(*this);
 }
 
 bool SynthAudioProcessor::hasEditor() const
 {
-	return false;
+	return true;
 }
 
 void SynthAudioProcessor::getStateInformation(juce::MemoryBlock& destData)

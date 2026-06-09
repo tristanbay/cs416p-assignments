@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "Voice.h"
 
 struct SynthAudioProcessor: public juce::AudioProcessor
 {
@@ -16,6 +17,7 @@ struct SynthAudioProcessor: public juce::AudioProcessor
 
 	void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
+	juce::AudioProcessorEditor* createEditor() override;
 	bool hasEditor() const override;
 
 	const juce::String getName() const override;
@@ -35,5 +37,6 @@ struct SynthAudioProcessor: public juce::AudioProcessor
 	void setStateInformation(const void* data, int sizeInBytes) override;
 
 private:
+	Voice voice;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthAudioProcessor)
 };
