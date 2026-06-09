@@ -17,8 +17,8 @@ Run the command `./aleatoric` in the project directory. This will play the newly
 - portaudio ([under the MIT Expat license](https://files.portaudio.com/docs/v19-doxydocs/License.html))
 
 ## References Used
-the `clipped` assignment also in this repo
-maybe [this source code/web page](https://files.portaudio.com/docs/v19-doxydocs/paex__record_8c_source.html) as well
+- the `clipped` assignment also in this repo
+- maybe [this source code/web page](https://files.portaudio.com/docs/v19-doxydocs/paex__record_8c_source.html) as well
 
 ## Licensing
 Copyright © 2026 me (Tristan)
