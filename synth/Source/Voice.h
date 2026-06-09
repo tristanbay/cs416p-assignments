@@ -11,7 +11,7 @@
 #define MIDI_REF_FREQ 440
 
 #define ENV_SEC_MIN 0.005
-#define ENV_SEC_MAX 10.0
+#define ENV_SEC_MAX 4.0
 
 struct MonoStack // implements last-pressed note priority for note number (but not velocity)
 {
@@ -41,7 +41,7 @@ struct Envelope // implements envelope modulation
 	void setParams(float, float);
 
 	void resetState(EnvState, float); // sets start to current value
-	bool isOn(); // is the envelope not in the OFF state
+	EnvState getState(); // get state of envelope
 	float process();
 	private:
 		EnvState state; // determines what time variable to use, behavior, etc.

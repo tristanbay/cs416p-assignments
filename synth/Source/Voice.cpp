@@ -50,14 +50,14 @@ void Envelope::setParams(float att, float rel)
 void Envelope::resetState(EnvState st, float newEnd)
 {
 	state = st;
-	prog = 0;
+	prog = (st == HOLD) ? 1 : 0;
 	start = lastVal; // this freezes the value of the envelope for 1 sample
 	end = newEnd;
 }
 
-bool Envelope::isOn()
+EnvState Envelope::getState()
 {
-	return state != OFF;
+	return state;
 }
 
 float Envelope::process()
@@ -95,18 +95,22 @@ Voice::Voice(): note(MIDI_REF_NOTE), freq(MIDI_REF_FREQ), phase(0.0)
 
 void Voice::noteOn(int num, int vel)
 {
-	if (num != note) {
+	if (num != note) { // if the incoming note isn't the current one
 		note = num;
 		freq = noteFreq();
 	}
 	stack.noteOn(num);
-	ampEnv.resetState(ATTACK, (float)vel / MAX_VEL);
+	if (ampEnv.getState() == HOLD) {
+		ampEnv.resetState(HOLD, (float)vel / MAX_VEL);
+	} else {
+		ampEnv.resetState(ATTACK, (float)vel / MAX_VEL);
+	}
 }
 
 void Voice::noteOff(int num)
 {
 	int newNote = stack.noteOff(num);
-	if (num == newNote)
+	if (num == newNote) // if the note number is for the only one that was pressed
 		ampEnv.resetState(RELEASE, 0);	
 	note = newNote;
 	freq = noteFreq();
@@ -126,7 +130,7 @@ void Voice::setEnvParams(float att, float rel)
 float Voice::audioOut()
 {
 	float out = sawWave() * ampEnv.process();
-	if (ampEnv.isOn()) {
+	if (ampEnv.getState() != OFF) {
 		phase += 1.0 / (sampleRate / freq);
 		if (phase >= 1.0)
 			phase -= 1.0;
