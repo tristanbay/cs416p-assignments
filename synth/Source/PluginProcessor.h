@@ -37,6 +37,8 @@ struct SynthAudioProcessor: public juce::AudioProcessor
 	void setStateInformation(const void* data, int sizeInBytes) override;
 
 private:
+	juce::AudioParameterFloat* ampAttack,
+							 * ampRelease;
 	Voice voice;
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthAudioProcessor)
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SynthAudioProcessor)
 };
