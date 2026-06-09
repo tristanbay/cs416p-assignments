@@ -1,8 +1,8 @@
 # Synth
-This is a simple virtual mono legato synthesizer I wrote with the JUCE framework for the final assignment of my CS 416P class at Portland State University. Some of the code was initially automatically generated as a template from Projucer, which is JUCE's project wizard application  that I compiled from source. The mono voice is a sawtooth wave with no band limiting/antialiasing, but the envelope has a modifiable attack and release time (5 ms to 4 sec), and the synth itself is velocity-sensitive (note-on only).
+This is a simple virtual mono legato synthesizer I wrote with the JUCE framework for the final assignment of my CS 416P class at Portland State University. Some of the code was initially automatically generated as a template from Projucer, which is JUCE's project wizard application  that I compiled from source. The mono voice is a sawtooth wave with no band limiting/antialiasing, but the envelope has a modifiable attack and release time (5 ms to 4 sec), and the synth itself is velocity-sensitive (note-on only). I didn't find this project to be a huge challenge but it was a little overwhelming getting things going. I may turn this into a personal project outside of school but as far as I know, I already went beyond the minimum requirements.
 
 ## Building (Linux)
-- [Download JUCE](https://juce.com/download) and build Projucer if a binary of it was not included in the download (This can be done by using the Makefile provided in `<JUCE directory>/extras/Projucer/Builds/LinuxMakefile`).
+- [Download JUCE](https://juce.com/download) and build Projucer if a binary of it was not included in the download (this can be done by using the Makefile provided in `<JUCE directory>/extras/Projucer/Builds/LinuxMakefile`).
 - Download this directory from this repository.
 - Launch Projucer and open the `synth.jucer` file in this directory
 - Click `Exporters` on the left-side menu, right click `Linux Makefile`, and click `Save this exporter`. This will generate the directories `JuceLibraryCode` and `Builds`.
